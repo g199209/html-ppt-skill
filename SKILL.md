@@ -81,9 +81,13 @@ Only after those are clear, scaffold the deck and start writing.
 3. **Pick layouts.** Copy `<section class="slide">...</section>` blocks out of
    files in `templates/single-page/` into your deck. Replace the demo data.
    Catalog in [references/layouts.md](references/layouts.md).
-4. **Add animations.** Put `data-anim="fade-up"` (or `class="anim-fade-up"`) on
-   any element. On `<ul>`/grids, use `anim-stagger-list` for sequenced reveals.
-   For canvas FX, use `<div data-fx="knowledge-graph">...</div>` and include
+4. **Add animations.** Put `data-anim="fade-up"` on any element. On `<ul>`/grids,
+   use **both** `class="anim-stagger-list" data-anim="stagger-list"` on the
+   container — the class provides the CSS, the `data-anim` tells `runtime.js`
+   to re-play the stagger every time you navigate onto the slide (without it
+   the animation runs once at page load across all hidden slides and is already
+   done by the time you arrive). For canvas FX, use
+   `<div data-fx="knowledge-graph">...</div>` and include
    `<script src="../assets/animations/fx-runtime.js"></script>`.
    Catalog in [references/animations.md](references/animations.md).
 5. **Use a full-deck template.** Copy `templates/full-decks/<name>/` into

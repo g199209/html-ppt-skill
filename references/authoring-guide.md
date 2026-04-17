@@ -71,7 +71,9 @@ For each outline item:
 Rules of thumb:
 
 - Cover/title: `rise-in` or `blur-in`.
-- Body content: `fade-up` for the hero element, `stagger-list` for grids/lists.
+- Body content: `data-anim="fade-up"` for the hero element; for grids/lists use
+  `class="anim-stagger-list" data-anim="stagger-list"` on the container (both
+  needed — see animations.md Gotcha).
 - Stat pages: `counter-up`.
 - Section dividers: `perspective-zoom` or `cube-rotate-3d`.
 - Closer: `confetti-burst` on the "Thanks" text.
@@ -131,6 +133,12 @@ for 小红书图文 (1242×1660).
   should contain ONLY audience-facing content.
 
 ## Troubleshooting
+
+- **Stagger animation doesn't play when navigating to the slide**: you're using
+  only `class="anim-stagger-list"` without `data-anim="stagger-list"`. All
+  slides are in the DOM from the start; the CSS animation runs on page load for
+  every hidden slide before you even get there. Add `data-anim="stagger-list"`
+  to the same element so `runtime.js` re-triggers it on each slide visit.
 
 - **Theme doesn't switch with T**: check `data-themes` on `<body>` and
   `data-theme-base` pointing to the themes directory relative to the HTML

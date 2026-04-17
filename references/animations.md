@@ -44,6 +44,25 @@ a random animation on the current page.
 | `stagger-list` | Children rise-in one-by-one. | Any `<ul>` or `.grid`. |
 | `counter-up` | Number ticks 0 → target. | KPI, stat-highlight pages. |
 
+**Stagger markup (correct):**
+```html
+<div class="grid g3 anim-stagger-list" data-anim="stagger-list" data-anim-target>
+  <div class="card">…</div>
+  <div class="card">…</div>
+  <div class="card">…</div>
+</div>
+```
+Both attributes are required together:
+- `class="anim-stagger-list"` — CSS that animates children.
+- `data-anim="stagger-list"` — tells `runtime.js` to remove and re-add the class every time the slide is navigated to, so the stagger replays on each visit (not just on first page load).
+
+> ⚠️ **Gotcha — stagger runs on page load, not on slide enter.**
+> All slides live in the DOM from the start; non-active ones are just hidden with
+> `opacity:0`. CSS animations don't pause for hidden elements, so without
+> `data-anim="stagger-list"` the children will have already finished their
+> rise-in before you navigate to the slide — and you'll see nothing. Always
+> pair `anim-stagger-list` with `data-anim="stagger-list"`.
+
 Counter markup:
 ```html
 <span class="counter" data-to="1248">0</span>
@@ -85,11 +104,16 @@ All animations are disabled automatically when
 
 ## Tips
 
-- Prefer `data-anim="..."` over `class="anim-..."` so that the runtime
-  re-triggers the animation whenever the slide becomes active.
+- **Always use `data-anim="..."` instead of (or alongside) `class="anim-..."`**
+  so that `runtime.js` re-triggers the animation on every slide visit. Using
+  only `class="anim-..."` means the animation plays once at page load across
+  all hidden slides — and is already finished by the time you navigate there.
+- **`anim-stagger-list` always needs `data-anim="stagger-list"` on the same
+  element.** See the Gotcha note above.
 - Use at most 1-2 distinct animation types on a single slide. Mixing 5 looks
   messy.
-- Stagger lists + a single hero entry = clean rhythm.
+- Stagger lists + a single hero entry (`data-anim="rise-in"` on the title) =
+  clean rhythm.
 - For counter-up, pair with `stat-highlight.html` or `kpi-grid.html`.
 
 ## FX (canvas)
