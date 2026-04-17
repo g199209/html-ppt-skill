@@ -10,9 +10,13 @@
  *   A  cycle demo animation on current slide
  *   URL hash #/N  deep-link to slide N (1-based)
  *   Progress bar auto-managed
+ *   Slide canvas: fixed 1920×1080, scaled to fit viewport (reveal.js-style)
  */
 (function () {
   'use strict';
+
+  const DESIGN_W = 1920;
+  const DESIGN_H = 1080;
 
   const ANIMS = ['fade-up','fade-down','fade-left','fade-right','rise-in','drop-in',
     'zoom-pop','blur-in','glitch-in','typewriter','neon-glow','shimmer-sweep',
@@ -25,7 +29,14 @@
   ready(function () {
     const deck = document.querySelector('.deck');
     if (!deck) return;
-    const slides = Array.from(deck.querySelectorAll('.slide'));
+    let stage = deck.querySelector('.deck-stage');
+    if (!stage) {
+      stage = document.createElement('div');
+      stage.className = 'deck-stage';
+      while (deck.firstChild) stage.appendChild(deck.firstChild);
+      deck.appendChild(stage);
+    }
+    const slides = Array.from(stage.querySelectorAll('.slide'));
     if (!slides.length) return;
 
     let idx = 0;
@@ -72,8 +83,8 @@
         mini.style.position = 'absolute';
         mini.style.top = '0';
         mini.style.left = '0';
-        mini.style.width = '1920px';
-        mini.style.height = '1080px';
+        mini.style.width = DESIGN_W + 'px';
+        mini.style.height = DESIGN_H + 'px';
         mini.style.transformOrigin = 'top left';
         mini.style.pointerEvents = 'none';
         mini.style.background = 'var(--bg)';
@@ -85,7 +96,7 @@
         clone.style.inset = '0';
         clone.style.transform = 'none';
         clone.style.opacity = '1';
-        clone.style.padding = '72px 96px'; // ensure padding is kept
+        clone.style.padding = '60px 80px'; // match .slide on design canvas
         
         mini.appendChild(clone);
         t.appendChild(mini);
@@ -130,6 +141,30 @@
         overview.appendChild(t);
       });
       document.body.appendChild(overview);
+    }
+
+    function fitStage(){
+      if (document.body.classList.contains('single')) {
+        stage.style.width = '100vw';
+        stage.style.height = '100vh';
+        stage.style.transform = '';
+        return;
+      }
+      const r = deck.getBoundingClientRect();
+      const s = Math.min(r.width / DESIGN_W, r.height / DESIGN_H);
+      stage.style.width = DESIGN_W + 'px';
+      stage.style.height = DESIGN_H + 'px';
+      stage.style.transform = 'scale(' + s + ')';
+    }
+
+    function rescaleOverviewThumbs(){
+      if (!overview.classList.contains('open')) return;
+      const thumbs = overview.querySelectorAll('.thumb');
+      if (!thumbs.length) return;
+      const scale = thumbs[0].clientWidth / DESIGN_W;
+      overview.querySelectorAll('.mini-slide').forEach(m => {
+        m.style.transform = 'scale(' + scale + ')';
+      });
     }
 
     function go(n){
@@ -178,10 +213,7 @@
         requestAnimationFrame(() => {
           const thumbs = overview.querySelectorAll('.thumb');
           if (thumbs.length) {
-            const scale = thumbs[0].clientWidth / 1920;
-            overview.querySelectorAll('.mini-slide').forEach(m => {
-              m.style.transform = 'scale(' + scale + ')';
-            });
+            rescaleOverviewThumbs();
           }
         });
       }
@@ -251,7 +283,14 @@
       if (m) go(Math.max(0, parseInt(m[1],10)-1));
     }
     window.addEventListener('hashchange', fromHash);
+    function onViewportChange(){
+      fitStage();
+      rescaleOverviewThumbs();
+    }
+    window.addEventListener('resize', onViewportChange);
+    document.addEventListener('fullscreenchange', onViewportChange);
     fromHash();
+    fitStage();
     go(idx);
   });
 })();
